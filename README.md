@@ -71,6 +71,15 @@ and MPC function:
       AD<double> psides0 = CppAD::atan(coeffs[1] + 2*coeffs[2]*x0 + 3*coeffs[3]*pow(x0,2));
 ```
 
+## Model Predictive Control with Latency
+
+Latency in real life is caused by delay in motors, hydrolics of the actuators. In irder to simulate this in the app, the main.cpp has a delay before sending the controlling params to the vehicle:
+```
+          this_thread::sleep_for(chrono::milliseconds(100));
+          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+```
+
+To cope with the latency, noise in the actuators, road unevennes, loss of traction / slipping, etc. the MPC is called 10 times a second, recalculating / correcting the trajectory by taking actual car's position, speed, and heading into account. 
 
 ---
 
