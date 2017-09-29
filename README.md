@@ -14,7 +14,7 @@ The state which successfully got utilized, and without spending much time on tun
 
 With `steering` and `acceleration` as actuators.
 
-The cost function, too, pretty much remains intact with the exception of heavier weights assigned to CTE, Trajectory Error, and smoothiness of steering in particular:
+The cost function, too, pretty much remains intact with the exception of heavier weights assigned to CTE, Trajectory Error, and smoothness of steering in particular:
 
 ```
     for (unsigned int t = 0; t < N; t++){
@@ -43,9 +43,9 @@ The cost function, too, pretty much remains intact with the exception of heavier
     }
 ```
 
-The reason of choosing such heavy weights for steering accuracy is becuase of the `const double ref_v = 80.0;` - as in reall life the faster you go, the more precise and smooth steering manipulations should be.
+The reason of choosing such heavy weights for steering accuracy is because of the `const double ref_v = 80.0;` - as in real life the faster you go, the more precise and smooth steering manipulations should be.
 
-In general, I am impressed how much less effort, compared to PID controller, it took to gain a smooth completetion of a lap, and at a significantly higher speeds.
+In general, I am impressed how much less effort, compared to PID controller, it took to gain a smooth completion of a lap, and at a significantly higher speeds.
 
 ## Timestep Length and Elapsed Duration (N & dt)
 
