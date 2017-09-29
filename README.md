@@ -3,6 +3,76 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## The Model
+The state which successfully got utilized, and without spending much time on tuning of cost function coefficients, was taken from the class materials and consists of the following members:
+- x
+- y
+- psi
+- v
+- CTE
+- E_psi
+
+With `steering` and `acceleration` as actuators.
+
+The cost function, too, pretty much remains intact with the exception of heavier weights assigned to CTE, Trajectory Error, and smoothiness of steering in particular:
+
+```
+    for (unsigned int t = 0; t < N; t++){
+      //CTE
+      fg[0] += 2.0*CppAD::pow(vars[cte_start + t], 2);
+      //Trajectory error
+      fg[0] += 850.0*CppAD::pow(vars[epsi_start + t], 2);
+      //Speed Error
+      fg[0] += 0.25*CppAD::pow(vars[v_start + t] - ref_v, 2);    
+      
+      //suppressing too much active use of actuators
+      if (t < N - 1) {
+        //steering
+        fg[0] += CppAD::pow(vars[delta_start + t], 2);
+        //acceleration
+        fg[0] += CppAD::pow(vars[a_start + t], 2);
+      }
+      
+      //smoothing actuator curves
+      if (t < N - 2) {
+        //steering
+        fg[0] += 5000.0*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+        //acceleration
+        fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);    
+      }
+    }
+```
+
+The reason of choosing such heavy weights for steering accuracy is becuase of the `const double ref_v = 80.0;` - as in reall life the faster you go, the more precise and smooth steering manipulations should be.
+
+In general, I am impressed how much less effort, compared to PID controller, it took to gain a smooth completetion of a lap, and at a significantly higher speeds.
+
+## Timestep Length and Elapsed Duration (N & dt)
+
+For this model, the working solution uses 10 ticks every 0.1sec:
+```
+size_t N = 10;
+double dt = 0.1;
+```
+
+## Polynomial Fitting and MPC Preprocessing
+
+Since this is a curved track with, in some places, sequences of fast coming turns, a 3rd order polynomial was chosen to work for both waypoint approximation, 
+
+```
+auto coeffs = polyfit(xvals, yvals, 3);
+```
+and MPC function:
+```
+      AD<double> f0 = coeffs[0] + coeffs[1]*x0 + coeffs[2]*pow(x0,2) + coeffs[3]*pow(x0,3);
+      AD<double> psides0 = CppAD::atan(coeffs[1] + 2*coeffs[2]*x0 + 3*coeffs[3]*pow(x0,2));
+```
+
+## Model Predictive Control with Latency
+
+
+---
+
 ## Dependencies
 
 * cmake >= 3.5
